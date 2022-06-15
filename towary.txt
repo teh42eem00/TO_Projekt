@@ -1,0 +1,21 @@
+"Pepsi", 30, 3, 5
+"Mirinda", 31, 3.5, 5
+"Fanta", 32, 3, 5
+"Cola", 33, 3.5, 5
+"Sok jablkowy", 34, 4, 5
+"Sok porzeczkowy", 35, 4, 5
+"Sok pomaranczowy", 36, 3.5, 5
+"Sok pomidorowy", 37, 3, 5
+"Energetyk", 38, 4, 5
+"Oranzada jablkowa", 39, 4, 5
+"Oranzada porzeczkowa", 40, 4, 5
+"Oranzada pomaranczowa", 41, 4, 5
+"Oranzada cytrynowa", 42, 4, 5
+"Cola Zero", 43, 3.5, 5
+"Pepsi Zero", 44, 3.5, 5
+"Duza woda", 45, 2, 5
+"Mala woda", 46, 1.5, 5
+"Mala tania woda", 47, 1, 5
+"Woda mocno gazowana", 48, 2.5, 5
+"Woda gazowana", 49, 2.5, 5
+"Woda niegazowana", 50, 2, 5
