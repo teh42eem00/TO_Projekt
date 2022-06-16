@@ -1,4 +1,8 @@
-Automat sprzedający napoje
+# Automat sprzedający napoje
+
+## Uruchomienie
+* W celu uruchomienia aplikacji automatu należy uruchomić program **automat.py**
+* W celu uruchomienia testów należy uruchomić **tests.py**
 
 ## Opis automatu
 
