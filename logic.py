@@ -1,59 +1,7 @@
 from decimal import *  # import decimal
+from errors import logicErrors
 
 possible_coins = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0]  # dozwolone nominaly
-
-
-# Wyjatki dla tego modulu
-class LogicError(Exception):
-    """Klasa bazowa dla zglaszanych w tym module wyjatkow"""
-    pass
-
-
-class NoChangeAvailableError(LogicError):
-    """Wyjatek wywolywany gdy brak pieniedzy do wydania reszty
-
-    atrybuty:
-    message_title - tytul wiadomosci zwracanej w okienku
-    message_content - tresc wiadomosci zwracanej w okienku"""
-
-    def __init__(self, message_title, message_content):
-        self.message_title = message_title
-        self.message_content = message_content
-
-    def __str__(self):
-        return self.message_title, self.message_content
-
-
-class NoProductOnStockError(LogicError):
-    """Wyjatek wywolywany gdy brak towaru (rozni sie od tego z interfejsu, ze jest wywolywany gdy klient juz wrzucil
-    odpowiednia kwote i automat rozpoczal proces zakupu)
-
-    atrybuty:
-    message_title - tytul wiadomosci zwracanej w okienku
-    message_content - tresc wiadomosci zwracanej w okienku"""
-
-    def __init__(self, message_title, message_content):
-        self.message_title = message_title
-        self.message_content = message_content
-
-    def __str__(self):
-        return self.message_title, self.message_content
-
-
-class InvalidObjectTypeError(LogicError):
-    """Wyjatek wywolywany gdy przedmiot umieszczany w kontenerze ma nieprawidlowy typ (np. w przypadku kontenerow
-    ItemStorage, CoinStorage oczekiwane sa klasy Item, Coin
-
-    atrybuty:
-    message_title - tytul wiadomosci zwracanej w okienku
-    message_content - tresc wiadomosci zwracanej w okienku"""
-
-    def __init__(self, message, object_type):
-        self._message = message
-        self._object_type = object_type
-
-    def __str__(self):
-        return self._message, self._object_type
 
 
 def decimal_2places_rounded(value_before):
@@ -147,8 +95,9 @@ class CoinStorage(Storage):
             if isinstance(added_coin, Coin):
                 self._coin_list.append(added_coin)
             else:
-                raise InvalidObjectTypeError("Przeslany obiekt nie jest moneta! Jest on typu ", type(added_coin))
-        except InvalidObjectTypeError as inv_type:
+                raise logicErrors.InvalidObjectTypeError("Przeslany obiekt nie jest moneta! Jest on typu ",
+                                                         type(added_coin))
+        except logicErrors.InvalidObjectTypeError as inv_type:
             print(*inv_type.__str__())
 
     def add_multiple_coins(self, coin_value, coin_count):
@@ -295,8 +244,9 @@ class ItemStorage(Storage):
             if isinstance(added_item, Item):
                 self._item_list.append(added_item)
             else:
-                raise InvalidObjectTypeError("Przeslany obiekt nie jest przedmiotem! Jest on typu ", type(added_item))
-        except InvalidObjectTypeError as inv_type:
+                raise logicErrors.InvalidObjectTypeError("Przeslany obiekt nie jest przedmiotem! Jest on typu ",
+                                                         type(added_item))
+        except logicErrors.InvalidObjectTypeError as inv_type:
             print(*inv_type.__str__())
 
     def get_item(self, chosen_item_number):
@@ -367,7 +317,7 @@ class ItemStorage(Storage):
 
                     returned_change_dict_list = return_change(counted_rest_coins_list, int(rest * 100))  # licz reszte
                     if returned_change_dict_list is None:  # jezeli nie udalo sie obliczyc reszty zglos wyjatek
-                        raise NoChangeAvailableError("Brak reszty!", "Tylko odliczona kwota!\n")
+                        raise logicErrors.NoChangeAvailableError("Brak reszty!", "Tylko odliczona kwota!\n")
                     else:  # w przeciwnym razie pobierz pieniadze i wydaj reszte
                         change_txt = ""
                         for rc in returned_change_dict_list:  # dla wszystkich slownikow reszty (nominal, ilosc)
@@ -381,9 +331,9 @@ class ItemStorage(Storage):
                         return "Sukces", ("Zakup produktu o numerze " + str(chosen_item_number) +
                                           " udany\n" + str(change_txt))
             else:
-                raise NoProductOnStockError("Brak towaru", "Brak towaru w automacie")
+                raise logicErrors.NoProductOnStockError("Brak towaru", "Brak towaru w automacie")
             # obsluga wyjatkow
-        except NoChangeAvailableError as no_change:
+        except logicErrors.NoChangeAvailableError as no_change:
             return no_change.message_title, no_change.message_content
-        except NoProductOnStockError as no_product:
+        except logicErrors.NoProductOnStockError as no_product:
             return no_product.message_title, no_product.message_content

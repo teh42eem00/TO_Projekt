@@ -1,57 +1,7 @@
 from tkinter import *
 from tkinter import ttk, messagebox
+from errors import interfaceErrors
 import logic
-
-
-# Wyjatki dla tego modulu
-class PanelError(Exception):
-    """Klasa bazowa dla zglaszanych w tym module wyjatkow"""
-    pass
-
-
-class TooLowMoneyAndNotOnStockError(PanelError):
-    """Wyjatek wywolywany gdy brak produktu na stanie oraz wrzucona kwota byla za mala
-
-    atrybuty:
-    message_title - tytul wiadomosci zwracanej w okienku
-    message_content - tresc wiadomosci zwracanej w okienku"""
-
-    def __init__(self, message_title, message_content):
-        self._message_title = message_title
-        self._message_content = message_content
-
-    def __str__(self):
-        return self._message_title, self._message_content
-
-
-class TooLowAmountOfMoneyError(PanelError):
-    """Wyjatek wywolywany gdy zostalo wplaconych zbyt malo srodkow
-
-    atrybuty:
-    message_title - tytul wiadomosci zwracanej w okienku
-    message_content - tresc wiadomosci zwracanej w okienku"""
-
-    def __init__(self, message_title, message_content):
-        self._message_title = message_title
-        self._message_content = message_content
-
-    def __str__(self):
-        return self._message_title, self._message_content
-
-
-class WrongProductNumberError(PanelError):
-    """Wyjatek wywolywany gdy zostal wybrany bledny numer produktu
-
-    atrybuty:
-    message_title - tytul wiadomosci zwracanej w okienku
-    message_content - tresc wiadomosci zwracanej w okienku"""
-
-    def __init__(self, message_title, message_content):
-        self._message_title = message_title
-        self._message_content = message_content
-
-    def __str__(self):
-        return self._message_title, self._message_content
 
 
 class MachinePanel:
@@ -70,20 +20,26 @@ class MachinePanel:
         self._machine_items = machine_items
         self._machine_coins_input = machine_coins_input
         self._machine_coins_change = machine_coins_change
+
         # Tworzenie okna
         self._window = Tk()
         self._window.title("Automat")
+
         # Zmienne przechowujace wyswietlana kwote i kod towaru
         self._money_amount = StringVar()
         self._item_choice = StringVar()
         self._buyers_choice = ""
+
         # Tworzenie siatki na przyciski
         self._mainframe = ttk.Frame(self._window)
+        # Licznik przyciskow
+        self._coin_row = 0
+
+    def create_view(self):
         # Umieszczenie siatki w oknie
         self._mainframe.grid(column=0, row=0)
 
         # Dodanie przycisków do wrzucania monet
-        self._coin_row = 0
         for coin in logic.possible_coins:
             # lambda
             ttk.Button(self._mainframe, text="Wrzuć " + str(coin) + "zł",
@@ -105,11 +61,11 @@ class MachinePanel:
 
         # Przyciski wypisujace w konsoli monety wplacone przez uzytkownika i te dostepne do wydawania reszty
         # lambda
-        # ttk.Button(self._mainframe, text="Monety - Reszta",
-        #           command=lambda: print(self._machine_coins_change.return_array_of_value())).grid(column=0, row=6)
+        ttk.Button(self._mainframe, text="Monety - Reszta",
+                   command=lambda: print(self._machine_coins_change.return_array_of_value())).grid(column=0, row=6)
         # lambda
-        # ttk.Button(self._mainframe, text="Monety - Wplacone",
-        #          command=lambda: print(self._machine_coins_input.return_array_of_value())).grid(column=0, row=7)
+        ttk.Button(self._mainframe, text="Monety - Wplacone",
+                   command=lambda: print(self._machine_coins_input.return_array_of_value())).grid(column=0, row=7)
 
         # Wyswietlanie zawartosci zmiennych money_amount i item_choice jako Label
         ttk.Label(self._mainframe, textvariable=self._money_amount).grid(column=0, row=0)
@@ -147,16 +103,18 @@ class MachinePanel:
                     # sprawdz czy wplacona kwota jest wystarczajaca i czy towar jest na stanie, jezeli nie to wyjatek
                     if (self._machine_coins_input.coin_sum() < self._machine_items.get_item_price(
                             choice) and not (self._machine_items.get_item(choice).check_item_count())):
-                        raise TooLowMoneyAndNotOnStockError("Za mało!", "Produkt " +
-                                                            self._machine_items.get_item(
-                                                                choice).get_name() + " kosztuje "
-                                                            + str(self._machine_items.get_item_price(choice)) +
-                                                            "\nNiestety w tym momencie brak tego towaru!")
+                        raise interfaceErrors.TooLowMoneyAndNotOnStockError("Za mało!", "Produkt " +
+                                                                            self._machine_items.get_item(
+                                                                                choice).get_name() + " kosztuje "
+                                                                            + str(
+                            self._machine_items.get_item_price(choice)) +
+                                                                            "\nNiestety w tym momencie brak tego towaru!")
                     # sprawdz czy kwota jest wystarczajaca, jezeli nie to wyjatek
                     elif self._machine_coins_input.coin_sum() < self._machine_items.get_item_price(choice):
-                        raise TooLowAmountOfMoneyError("Za mało!", "Produkt " +
-                                                       self._machine_items.get_item(choice).get_name() + " kosztuje " +
-                                                       str(self._machine_items.get_item_price(choice)))
+                        raise interfaceErrors.TooLowAmountOfMoneyError("Za mało!", "Produkt " +
+                                                                       self._machine_items.get_item(
+                                                                           choice).get_name() + " kosztuje " +
+                                                                       str(self._machine_items.get_item_price(choice)))
                     # w przeciwnym wypadku przejdz do procedury zakupu
                     else:
                         buy_status, buy_message = (
@@ -167,13 +125,13 @@ class MachinePanel:
                             self._money_amount.set("")
                 # gdy kod towaru bledny zwroc wyjatek
                 else:
-                    raise WrongProductNumberError("Blad", "Bledny numer produktu!")
+                    raise interfaceErrors.WrongProductNumberError("Blad", "Bledny numer produktu!")
         # obsluga wyjatkow
-        except TooLowMoneyAndNotOnStockError as not_on_stock:
+        except interfaceErrors.TooLowMoneyAndNotOnStockError as not_on_stock:
             messagebox.showinfo(*not_on_stock.__str__())
-        except TooLowAmountOfMoneyError as money_too_low:
+        except interfaceErrors.TooLowAmountOfMoneyError as money_too_low:
             messagebox.showinfo(*money_too_low.__str__())
-        except WrongProductNumberError as wrong_number:
+        except interfaceErrors.WrongProductNumberError as wrong_number:
             messagebox.showinfo(*wrong_number.__str__())
 
     def action_on_money(self, money):

@@ -17,4 +17,4 @@ if __name__ == '__main__':
     [machine_rest_coins.add_multiple_coins(value, 1) for value in logic.possible_coins]
 
     # uruchomienie interfejsu graficznego
-    display = interface.MachinePanel(machine, machine_coins, machine_rest_coins)
+    display = interface.MachinePanel(machine, machine_coins, machine_rest_coins).create_view()
