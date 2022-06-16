@@ -258,6 +258,14 @@ class ItemStorage(Storage):
         # wyrazenie generujace, zwracajace pierwszy napotkany przedmiot o danym kodzie towaru
         return next(item for item in self._item_list if item.get_number() == chosen_item_number)
 
+    def get_item_list(self):
+        """Metoda zwracajaca liste towarow na sprzedaz"""
+        output = ""
+        for item in self._item_list:
+            output += str(item.get_number()) + ". " + item.get_name() + " " + str(item.get_price()) + "PLN " + str(
+                item.get_count()) + "szt\n"
+        return output
+
     def get_item_price(self, chosen_item_number):
         """Metoda zwracajaca cene towaru o podanym numerze
 

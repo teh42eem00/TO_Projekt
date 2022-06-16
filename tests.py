@@ -2,11 +2,11 @@ import unittest
 import logic
 
 # inicjalizacja srodowiska testowego
-machine = logic.ItemStorage()  # utworzenie automatu przechowujacego przedmioty klasy Item
+test_machine = logic.ItemStorage()  # utworzenie automatu przechowujacego przedmioty klasy Item
 # pobranie towarow z pliku i zaladowanie ich do automatu (jednolinijkowy odczyt pliku)
 for product in [line.strip() for line in open("towary.txt")]:
     name, number, price, count = product.split(',')
-    machine.add_item(logic.Item(name, int(number), logic.decimal_2places_rounded(price), int(count)))
+    test_machine.add_item(logic.Item(name, int(number), logic.decimal_2places_rounded(price), int(count)))
 # utworzenie kontenerow na pieniadze umieszczane przez klienta oraz na pieniadze wydawane jako reszta
 machine_coins = logic.CoinStorage()
 machine_rest_coins = logic.CoinStorage()
@@ -21,30 +21,31 @@ class TestDrinkMachine(unittest.TestCase):
         """Test 1. Sprawdzenie ceny jednego towaru - oczekiwana informacja o cenie."""
         # wybranie towaru zwraca text do okienka ale posrednio wykonuje funkcje get item price
         product_number = 30
-        self.assertEqual(machine.get_item_price(product_number), 3)
+        self.assertEqual(test_machine.get_item_price(product_number), 3)
 
     def test_buy_with_equal_money(self):
         """Test 2. Wrzucenie odliczonej kwoty, zakup towaru - oczekiwany brak reszty"""
         # zakup za odliczona kwote zwraca tylko komunikat o udanym zakupie
-        self.assertEqual(machine.buy_item(30, 3, machine_rest_coins, machine_coins),
+        self.assertEqual(test_machine.buy_item(30, 3, machine_rest_coins, machine_coins),
                          ('Sukces', 'Zakup produktu o numerze 30 udany'))
 
     def test_buy_with_change(self):
         """Test 3. Wrzucenie wiekszej kwoty, zakup towaru - oczekiwana reszta"""
         # zakup za wieksza kwote zwraca komunikat o udanym zakupie i zwroconej reszcie
-        self.assertEqual(machine.buy_item(30, logic.decimal_2places_rounded(4.5), machine_rest_coins, machine_coins),
-                         ('Sukces',
-                          'Zakup produktu o numerze 30 udany\n'
-                          'Wydaje reszte o wartosci 0.50zl.\n'
-                          'Wydaje reszte o wartosci 1.00zl.\n'))
+        self.assertEqual(
+            test_machine.buy_item(30, logic.decimal_2places_rounded(4.5), machine_rest_coins, machine_coins),
+            ('Sukces',
+             'Zakup produktu o numerze 30 udany\n'
+             'Wydaje reszte o wartosci 0.50zl.\n'
+             'Wydaje reszte o wartosci 1.00zl.\n'))
 
     def test_buy_when_out_of_stock(self):
         """Test 4. Wykupienie calego asortymentu, proba zakupu po wyczerpaniu towaru - oczekiwana informacja o braku."""
         # czterokrotny zakup + 1 sztuka zabrana powyzej
         for _ in range(5):
-            machine.buy_item(50, 2, machine_rest_coins, machine_coins)
+            test_machine.buy_item(50, 2, machine_rest_coins, machine_coins)
         # proba zakupu po wyczerpaniu towaru
-        self.assertEqual(machine.buy_item(50, 2, machine_rest_coins, machine_coins),
+        self.assertEqual(test_machine.buy_item(50, 2, machine_rest_coins, machine_coins),
                          ('Brak towaru', 'Brak towaru w automacie'))
 
     def test_wrong_choice(self):
@@ -71,13 +72,13 @@ class TestDrinkMachine(unittest.TestCase):
         machine_coins.add_coin(logic.Coin(2))
         # sprawdzanie w interfejsie odbywa sie za pomoca machine_coins.coin_sum() < machine.get_item_price(choice)
         # kwota nie przejdzie tego zarunku wiec interfejs nie wpusci do zakupu za pomoca metody machine.buy_item
-        self.assertTrue(machine_coins.coin_sum() < machine.get_item_price(choice))
+        self.assertTrue(machine_coins.coin_sum() < test_machine.get_item_price(choice))
         # wrzucenie brakujacej kwoty
         machine_coins.add_coin(logic.Coin(1))
         # po wrzuceniu brakujacej kwoty interfejs pozwoli na zakup
-        self.assertFalse(machine_coins.coin_sum() < machine.get_item_price(choice))
+        self.assertFalse(machine_coins.coin_sum() < test_machine.get_item_price(choice))
         # i zakup sie powiedzie
-        self.assertEqual(machine.buy_item(30, machine_coins.coin_sum(), machine_rest_coins, machine_coins),
+        self.assertEqual(test_machine.buy_item(30, machine_coins.coin_sum(), machine_rest_coins, machine_coins),
                          ('Sukces', 'Zakup produktu o numerze 30 udany'))
 
     def test_buy_with_low_value_coins(self):
@@ -86,7 +87,7 @@ class TestDrinkMachine(unittest.TestCase):
         # zwrocenie wszystkich dotychczas przechowywanych monet
         machine_coins.add_multiple_coins(0.01, 100)
         # proba zakupu przy pomocy wplaconych srodkow
-        self.assertEqual(machine.buy_item(47, machine_coins.coin_sum(), machine_rest_coins, machine_coins),
+        self.assertEqual(test_machine.buy_item(47, machine_coins.coin_sum(), machine_rest_coins, machine_coins),
                          ('Sukces', 'Zakup produktu o numerze 47 udany'))
 
 

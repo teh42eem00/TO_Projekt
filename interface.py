@@ -56,7 +56,7 @@ class MachinePanel:
         ttk.Button(self._mainframe, text="0", command=lambda: self.action_on_choice(0)).grid(row=5, column=1)
 
         # Dodanie przycisku przerwania transakcji, zwraca wplacone monety
-        ttk.Button(self._mainframe, text="Przerwij",
+        ttk.Button(self._mainframe, text="Zwrot",
                    command=lambda: self.action_on_cancel()).grid(column=0, row=5)  # lambda
 
         # Przyciski wypisujace w konsoli monety wplacone przez uzytkownika i te dostepne do wydawania reszty
@@ -66,6 +66,10 @@ class MachinePanel:
         # lambda
         ttk.Button(self._mainframe, text="Monety - Wplacone",
                    command=lambda: print(self._machine_coins_input.return_array_of_value())).grid(column=0, row=7)
+        # lambda
+        ttk.Button(self._mainframe, text="Cennik",
+                   command=lambda: messagebox.showinfo("Cennik", self._machine_items.get_item_list())).grid(column=0,
+                                                                                                            row=8)
 
         # Wyswietlanie zawartosci zmiennych money_amount i item_choice jako Label
         ttk.Label(self._mainframe, textvariable=self._money_amount).grid(column=0, row=0)
@@ -106,8 +110,7 @@ class MachinePanel:
                         raise interfaceErrors.TooLowMoneyAndNotOnStockError("Za mało!", "Produkt " +
                                                                             self._machine_items.get_item(
                                                                                 choice).get_name() + " kosztuje "
-                                                                            + str(
-                            self._machine_items.get_item_price(choice)) +
+                                                                            + str(self._machine_items.get_item_price(choice)) +
                                                                             "\nNiestety w tym momencie brak tego towaru!")
                     # sprawdz czy kwota jest wystarczajaca, jezeli nie to wyjatek
                     elif self._machine_coins_input.coin_sum() < self._machine_items.get_item_price(choice):
