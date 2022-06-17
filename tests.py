@@ -1,16 +1,20 @@
 import unittest
-import logic
+import logic  # import modulu odpowiadajacego za logike
+import helpers  # import funkcji pomocniczych
 
 # inicjalizacja srodowiska testowego
 test_machine = logic.ItemStorage()  # utworzenie automatu przechowujacego przedmioty klasy Item
+
 # pobranie towarow z pliku i zaladowanie ich do automatu (jednolinijkowy odczyt pliku)
 for product in [line.strip() for line in open("towary.txt")]:
     name, number, price, count = product.split(',')
-    test_machine.add_item(logic.Item(name, int(number), logic.decimal_2places_rounded(price), int(count)))
+    test_machine.add_item(logic.Item(name, int(number), helpers.decimal_2places_rounded(price), int(count)), logic.Item)
+
 # utworzenie kontenerow na pieniadze umieszczane przez klienta oraz na pieniadze wydawane jako reszta
 machine_coins = logic.CoinStorage()
 machine_rest_coins = logic.CoinStorage()
-# dodanie pieniedzy do kontenera na wydawanie reszty list comprehension
+
+# dodanie poczatkowych srodkow do kontenera na wydawanie reszty - list comprehension
 [machine_rest_coins.add_multiple_coins(value, 1) for value in logic.possible_coins]
 
 
@@ -33,7 +37,7 @@ class TestDrinkMachine(unittest.TestCase):
         """Test 3. Wrzucenie wiekszej kwoty, zakup towaru - oczekiwana reszta"""
         # zakup za wieksza kwote zwraca komunikat o udanym zakupie i zwroconej reszcie
         self.assertEqual(
-            test_machine.buy_item(30, logic.decimal_2places_rounded(4.5), machine_rest_coins, machine_coins),
+            test_machine.buy_item(30, helpers.decimal_2places_rounded(4.5), machine_rest_coins, machine_coins),
             ('Sukces',
              'Zakup produktu o numerze 30 udany\n'
              'Wydaje reszte o wartosci 0.50zl.\n'
@@ -69,12 +73,12 @@ class TestDrinkMachine(unittest.TestCase):
         # ten test odbywa sie po stronie interfejsu i ciezko go wywolac w tescie
         # wrzucenie za malej kwoty
         choice = 30
-        machine_coins.add_coin(logic.Coin(2))
+        machine_coins.add_item(logic.Coin(2), logic.Coin)
         # sprawdzanie w interfejsie odbywa sie za pomoca machine_coins.coin_sum() < machine.get_item_price(choice)
         # kwota nie przejdzie tego zarunku wiec interfejs nie wpusci do zakupu za pomoca metody machine.buy_item
         self.assertTrue(machine_coins.coin_sum() < test_machine.get_item_price(choice))
         # wrzucenie brakujacej kwoty
-        machine_coins.add_coin(logic.Coin(1))
+        machine_coins.add_item(logic.Coin(1), logic.Coin)
         # po wrzuceniu brakujacej kwoty interfejs pozwoli na zakup
         self.assertFalse(machine_coins.coin_sum() < test_machine.get_item_price(choice))
         # i zakup sie powiedzie

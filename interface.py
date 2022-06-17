@@ -1,7 +1,7 @@
-from tkinter import *
-from tkinter import ttk, messagebox
-from errors import interfaceErrors
-import logic
+from tkinter import *  # import biblioteki odpowiedzialnej za rysowanie interfejsu
+from tkinter import ttk, messagebox  # import biblioteki odpowiedzialnej za rysowanie interfejsu
+from errors import interfaceErrors  # import obslugi wyjatkow
+import logic  # import modulu odpowiadajacego za logike
 
 
 class MachinePanel:
@@ -67,6 +67,7 @@ class MachinePanel:
         ttk.Button(self._mainframe, text="Monety - Wplacone",
                    command=lambda: print(self._machine_coins_input.return_array_of_value())).grid(column=0, row=7)
         # lambda
+        # Dodanie przycisku cennika, wypisuje produkty, ich numery, ceny i stan sztuk w automacie
         ttk.Button(self._mainframe, text="Cennik",
                    command=lambda: messagebox.showinfo("Cennik", self._machine_items.get_item_list())).grid(column=0,
                                                                                                             row=8)
@@ -97,6 +98,7 @@ class MachinePanel:
             if len(self._buyers_choice) == 0 or len(self._buyers_choice) == 2:
                 self._buyers_choice = str(choice)
                 self._item_choice.set(self._buyers_choice)
+
             # jezeli jest rowna jeden zlacz string aby uzyskac dwucyfrowy kod towaru i przejdz do zakupu
             elif len(self._buyers_choice) == 1:
                 self._buyers_choice += str(choice)
@@ -109,8 +111,9 @@ class MachinePanel:
                             choice) and not (self._machine_items.get_item(choice).check_item_count())):
                         raise interfaceErrors.TooLowMoneyAndNotOnStockError("Za mało!", "Produkt " +
                                                                             self._machine_items.get_item(
-                                                                                choice).get_name() + " kosztuje "
-                                                                            + str(self._machine_items.get_item_price(choice)) +
+                                                                                choice).get_name() + " kosztuje " +
+                                                                            str(self._machine_items.get_item_price(
+                                                                                choice)) +
                                                                             "\nNiestety w tym momencie brak tego towaru!")
                     # sprawdz czy kwota jest wystarczajaca, jezeli nie to wyjatek
                     elif self._machine_coins_input.coin_sum() < self._machine_items.get_item_price(choice):
@@ -126,6 +129,7 @@ class MachinePanel:
                         messagebox.showinfo(buy_status, buy_message)
                         if self._machine_coins_input.check_empty_coin_list():
                             self._money_amount.set("")
+                            self._item_choice.set("")
                 # gdy kod towaru bledny zwroc wyjatek
                 else:
                     raise interfaceErrors.WrongProductNumberError("Blad", "Bledny numer produktu!")
@@ -146,7 +150,7 @@ class MachinePanel:
         money - nominal wybrany przez uzytkownika na panelu, zostaje utworzony obiekt klasy Coin o takim nominale i
         trafia do kontenera na monety."""
         # dodanie monety o kliknietej wartosci
-        self._machine_coins_input.add_coin(logic.Coin(money))
+        self._machine_coins_input.add_item(logic.Coin(money), logic.Coin)
         # ustawienie sumy wplaconych monet na wyswietlaczu
         self._money_amount.set(str(self._machine_coins_input.coin_sum()))
 
